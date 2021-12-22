@@ -4,10 +4,10 @@
 ## 安装
 
 ```bash
-npm install jpg-APP-tool
+npm install jpg-app-tool
 ```
 ```bash
-yarn add jpg-APP-tool
+yarn add jpg-app-tool
 ```
 
 ## 使用
