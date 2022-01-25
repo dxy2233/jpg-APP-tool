@@ -9,6 +9,7 @@ const APP1 = 0xffe1,
 export const sliceAPP1 = (dataView, resetOrientation) => {
     let offset = 2
     let size = 0
+    let resOrientation = 1
     while (offset < dataView.byteLength) {
         const marker = dataView.getUint16(offset)
         if (marker === jpgSOS) break
@@ -27,27 +28,38 @@ export const sliceAPP1 = (dataView, resetOrientation) => {
                         dataView.getUint16(targetOffset, little) === orientation
                     ) {
                         targetOffset += 8
-                        dataView.setUint32(targetOffset, 1, little)
+                        resOrientation = dataView.getUint16(targetOffset, little)
+                        dataView.setUint16(targetOffset, 1, little)
                         break
                     }
                 }
             }
-            return new Blob([dataView]).slice(offset, offset + 2 + size)
+            return {
+                APP1: new Blob([dataView]).slice(offset, offset + 2 + size),
+                orientation: resOrientation,
+            }
         }
         offset += 2 + size
     }
-    return null
+    return {
+        APP1: null,
+        orientation: null,
+    }
 }
 
 export const getAPP1 = async (file, resetOrientation) => {
     const dataView = new DataView(await file.arrayBuffer())
     if (dataView.getUint16(0) !== jpgStart) return null
-    return sliceAPP1(dataView, resetOrientation)
+    return sliceAPP1(dataView, resetOrientation).APP1
 }
 
 export const padGetAPP1 = async (file) => {
     const dataView = new DataView(await file.arrayBuffer())
-    if (dataView.getUint16(0) !== jpgStart) return [null, null]
+    if (dataView.getUint16(0) !== jpgStart) return {
+        APP1: null,
+        orientation: null,
+        newFile: null,
+    }
     // 处理jpg缺少编码的问题，补位结尾字节码
     let newFile = null
     if (dataView.getUint16(dataView.byteLength - 2) !== jpgEnd) {
@@ -55,5 +67,8 @@ export const padGetAPP1 = async (file) => {
         endByte.setUint16(0, jpgEnd)
         newFile = new Blob([dataView, endByte])
     }
-    return [sliceAPP1(dataView, true), newFile]
+    return {
+        ...sliceAPP1(dataView, true),
+        newFile, 
+    }
 }
