@@ -48,27 +48,41 @@ export const sliceAPP1 = (dataView, resetOrientation) => {
 }
 
 export const getAPP1 = async (file, resetOrientation) => {
-    const dataView = new DataView(await file.arrayBuffer())
-    if (dataView.getUint16(0) !== jpgStart) return null
-    return sliceAPP1(dataView, resetOrientation).APP1
+    // const dataView = new DataView(await file.arrayBuffer())
+    return new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.readAsArrayBuffer(file)
+        reader.onload = e => {
+            const dataView = new DataView(e.target.result)
+            if (dataView.getUint16(0) !== jpgStart) resolve(null)
+            resolve(sliceAPP1(dataView, resetOrientation).APP1)
+        }
+    })
 }
 
-export const padGetAPP1 = async (file) => {
-    const dataView = new DataView(await file.arrayBuffer())
-    if (dataView.getUint16(0) !== jpgStart) return {
-        APP1: null,
-        orientation: null,
-        newFile: null,
-    }
-    // 处理jpg缺少编码的问题，补位结尾字节码
-    let newFile = null
-    if (dataView.getUint16(dataView.byteLength - 2) !== jpgEnd) {
-        const endByte = new DataView(new ArrayBuffer(2))
-        endByte.setUint16(0, jpgEnd)
-        newFile = new Blob([dataView, endByte])
-    }
-    return {
-        ...sliceAPP1(dataView, true),
-        newFile, 
-    }
+export const padGetAPP1 = (file) => {
+    // const dataView = new DataView(await file.arrayBuffer())
+    return new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.readAsArrayBuffer(file)
+        reader.onload = e => {
+            const dataView = new DataView(e.target.result)
+            if (dataView.getUint16(0) !== jpgStart) resolve({
+                APP1: null,
+                orientation: null,
+                newFile: null,
+            })
+            // 处理jpg缺少编码的问题，补位结尾字节码
+            let newFile = null
+            if (dataView.getUint16(dataView.byteLength - 2) !== jpgEnd) {
+                const endByte = new DataView(new ArrayBuffer(2))
+                endByte.setUint16(0, jpgEnd)
+                newFile = new Blob([dataView, endByte])
+            }
+            resolve({
+                ...sliceAPP1(dataView, true),
+                newFile, 
+            })
+        }
+    })
 }
