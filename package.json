@@ -1,15 +1,22 @@
 {
   "name": "jpg-app-tool",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": "dxy2233",
   "license": "MIT",
   "private": false,
-  "keywords": ["js", "exif", "jpg", "APP1"],
+  "keywords": [
+    "js",
+    "exif",
+    "jpg",
+    "APP1"
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dxy2233/jpg-APP-tool.git"
+    "url": "git+https://github.com/dxy2233/jpg-APP-tool.git"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/jpg-app-tool.umd.js",
   "module": "./dist/jpg-app-tool.es.js",
   "exports": {
@@ -24,6 +31,6 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^2.7.2"
+    "vite": "^5.4.2"
   }
 }
