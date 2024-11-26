@@ -10,7 +10,8 @@ export const sliceAPP1 = (dataView, resetOrientation) => {
   let offset = 2
   let size = 0
   let resOrientation = 1
-  while (offset < dataView.byteLength) {
+  let maxLen = dataView.byteLength - 2
+  while (offset < maxLen) {
     const marker = dataView.getUint16(offset)
     if (marker === jpgSOS) break
     size = dataView.getUint16(offset + 2) // 读取字段长度直接跳过
